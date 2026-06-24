@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Climate Attitudes Study - Air Condition</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f0f2f5; color: #333; line-height: 1.6; min-height: 100vh; }
+.survey-header { background: #1a5276; color: white; padding: 13px 28px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.survey-header h1 { font-size: 1em; font-weight: 600; }
+.condition-badge { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px; font-size: 0.78em; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.progress-bar { background: #d5d8dc; height: 5px; }
+.progress-fill { background: #1a5276; height: 100%; transition: width 0.4s ease; }
+.page-counter { text-align: right; padding: 10px 24px 6px; font-size: 0.78em; color: #888; }
+.survey-page { max-width: 860px; margin: 0 auto 12px; background: white; padding: 44px 52px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: none; }
+.survey-page.active { display: block; }
+.nav-buttons { max-width: 860px; margin: 0 auto 60px; display: flex; justify-content: flex-end; gap: 12px; padding: 0 0 24px; }
+.btn { padding: 10px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.93em; font-weight: 600; transition: background 0.15s; }
+.btn-primary { background: #1a5276; color: white; }
+.btn-primary:hover { background: #154360; }
+.btn-secondary { background: white; color: #1a5276; border: 1.5px solid #1a5276; }
+.btn-secondary:hover { background: #eaf2f8; }
+.page-title { font-size: 1.2em; font-weight: 700; color: #1a5276; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #1a5276; }
+.consent-text { font-size: 0.97em; line-height: 1.75; }
+.consent-text h3 { font-size: 1.03em; margin: 20px 0 8px; color: #1a5276; }
+.consent-text p { margin-bottom: 12px; }
+.consent-text ul { margin: 8px 0 12px 22px; }
+.consent-text li { margin-bottom: 5px; }
+.consent-box { border: 1px solid #ccc; border-radius: 4px; padding: 18px 22px; margin-top: 24px; background: #fafafa; }
+.consent-box ul { margin: 10px 0 0 18px; }
+.article-intro { font-style: italic; color: #555; background: #f4f8fb; padding: 13px 18px; border-left: 3px solid #1a5276; margin-bottom: 28px; font-size: 0.97em; border-radius: 0 4px 4px 0; }
+.news-article { font-family: Georgia, 'Times New Roman', serif; max-width: 680px; margin: 0 auto; padding-bottom: 28px; }
+.masthead { font-family: Arial, sans-serif; font-size: 0.72em; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #333; margin-bottom: 2px; }
+.section-tag { font-family: Arial, sans-serif; font-size: 0.75em; color: #c0392b; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
+.headline { font-size: 2em; font-weight: 700; line-height: 1.22; margin-bottom: 10px; color: #111; }
+.byline { font-family: Arial, sans-serif; font-size: 0.82em; color: #777; margin-bottom: 26px; padding-bottom: 18px; border-bottom: 1px solid #ddd; }
+.article-body p { margin-bottom: 20px; font-size: 1.07em; line-height: 1.78; color: #1a1a1a; }
+.article-hr { border: none; border-top: 1px solid #eee; margin: 28px 0; }
+.question-block { margin-bottom: 34px; }
+.question-text { font-size: 1em; font-weight: 600; margin-bottom: 14px; line-height: 1.5; }
+.radio-option { display: flex; align-items: center; gap: 11px; padding: 9px 13px; border-radius: 5px; margin-bottom: 5px; border: 1px solid #eee; }
+.radio-option:hover { background: #f7f9fc; }
+.radio-circle { width: 18px; height: 18px; border: 2px solid #aaa; border-radius: 50%; flex-shrink: 0; }
+.radio-label { font-size: 0.96em; }
+.matrix-wrap { overflow-x: auto; }
+.matrix-table { width: 100%; border-collapse: collapse; font-size: 0.88em; min-width: 520px; }
+.matrix-table th { text-align: center; padding: 9px 5px; font-weight: 600; color: #555; font-size: 0.83em; border-bottom: 2px solid #ddd; background: #fafafa; }
+.matrix-table th:first-child { text-align: left; width: 38%; }
+.matrix-table td { padding: 11px 5px; border-bottom: 1px solid #f0f0f0; }
+.matrix-table td:first-child { text-align: left; padding-left: 0; font-size: 0.94em; color: #333; }
+.matrix-table td:not(:first-child) { text-align: center; }
+.m-circle { width: 17px; height: 17px; border: 2px solid #bbb; border-radius: 50%; display: inline-block; }
+.likert-row { display: flex; gap: 0; margin-top: 14px; }
+.l-opt { flex: 1; text-align: center; }
+.l-opt .c { width: 22px; height: 22px; border: 2px solid #bbb; border-radius: 50%; display: inline-block; margin-bottom: 5px; }
+.l-opt .lb { font-size: 0.74em; color: #666; display: block; line-height: 1.3; }
+.num-scale-wrap { margin-top: 14px; }
+.num-scale { display: flex; align-items: flex-end; gap: 4px; }
+.ns-end { font-size: 0.78em; color: #666; min-width: 64px; padding-bottom: 4px; line-height: 1.3; }
+.ns-end.right { text-align: right; }
+.ns-opts { display: flex; flex: 1; justify-content: space-around; }
+.ns-opt { text-align: center; }
+.ns-opt .c { width: 20px; height: 20px; border: 2px solid #bbb; border-radius: 50%; display: inline-block; margin-bottom: 3px; }
+.ns-opt .n { font-size: 0.78em; color: #999; display: block; }
+.randomizer-box { background: #eaf4fb; border: 1.5px dashed #1a5276; border-radius: 5px; padding: 14px 18px; margin: 4px 0 24px; font-size: 0.92em; color: #1a5276; }
+.tab-bar { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 28px; }
+.tab-btn { padding: 10px 22px; border: none; background: none; cursor: pointer; font-size: 0.93em; font-weight: 600; color: #888; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.tab-btn.active { color: #1a5276; border-bottom-color: #1a5276; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+.air-dvs-intro { background: #fdfefe; border: 1px solid #e8e8e8; border-radius: 4px; padding: 14px 18px; margin-bottom: 28px; font-style: italic; color: #555; font-size: 0.97em; }
+.debrief-text { font-size: 0.97em; line-height: 1.75; }
+.debrief-text h3 { font-size: 1.03em; margin: 20px 0 8px; color: #1a5276; }
+.debrief-text p { margin-bottom: 13px; }
+.contact-box { background: #f4f8fb; padding: 16px 20px; border-radius: 5px; margin-top: 20px; font-size: 0.9em; border: 1px solid #d6eaf8; }
+.contact-box p { margin-bottom: 5px; }
+.approx { font-size: 0.78em; color: #aaa; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="survey-header">
+  <h1>Climate Attitudes Study</h1>
+  <span class="condition-badge">AIR CONDITION</span>
+</div>
+<div class="progress-bar"><div id="progress" class="progress-fill" style="width:0%"></div></div>
+<div class="page-counter" id="counter">Page 1 of ...</div>
+<div class="survey-page" id="p1">
+<div class="page-title">Welcome &amp; Consent</div>
+<div class="consent-text">
+  <p>Thank you for agreeing to participate in this research study. Please read the following information carefully before proceeding.</p>
+  <h3>About the study</h3>
+  <p>This study is conducted by Filip Olsson at the European University Institute (EUI). It examines how media coverage of climate change influences public attitudes, behavioural intentions, and policy preferences. The study is funded by the Magnus Bergvall Foundation.</p>
+  <h3>What you will do</h3>
+  <p>You will read a short news article and then answer a series of questions about your views on climate change. The survey takes approximately 8 to 12 minutes to complete.</p>
+  <h3>Your rights</h3>
+  <ul>
+    <li>Participation is voluntary. You may withdraw at any time without penalty.</li>
+    <li>Your responses are anonymous. Individual data cannot be linked to you after collection.</li>
+    <li>You may withdraw your data within 30 days by emailing filip.olsson@eui.eu with your Prolific ID. After 30 days the dataset is fully anonymised and individual responses can no longer be located.</li>
+  </ul>
+  <h3>Contact</h3>
+  <p>Study questions: filip.olsson@eui.eu &nbsp;|&nbsp; Ethics questions: ethics@eui.eu &nbsp;|&nbsp; Data protection: data_protection_officer@eui.eu</p>
+  <div class="consent-box">
+    <p><strong>By clicking Next, you confirm that:</strong></p>
+    <ul>
+      <li>You have read and understood the information above.</li>
+      <li>You are 18 years of age or older.</li>
+      <li>You agree to participate in this research.</li>
+    </ul>
+  </div>
+</div>
+</div>
+<div class="survey-page" id="p2">
+<div class="page-title">First Article</div>
+<div class="news-article">
+  <div class="masthead">The Public Record</div>
+  <div class="section-tag">Health &amp; Environment</div>
+  <h1 class="headline">The Air Americans Grew Up With</h1>
+  <div class="byline">By Sarah Chen &middot; Published May 12, 2025 &middot; 3 min read</div>
+  <div class="article-body">
+    <p>For much of the twentieth century, poor air quality was a routine feature of American life. In cities and towns across the country, the air carried high concentrations of pollutants from coal-burning power plants, steel mills, leaded gasoline, and rapid expansion of car ownership with little oversight of vehicle emissions. Few gave it much thought, partly because the worst of it was not always something you could see or smell.</p>
+    <p>By the time most of today's adults were children, ground-level ozone and particulate matter had become persistent problems in American metropolitan areas. Monitoring data from those decades shows consistently high readings across a broad range of cities, not just industrial centers like Pittsburgh and Detroit, but also mid-sized cities and suburban areas downwind of highways and manufacturing facilities, where pollution accumulated in the absence of stronger controls.</p>
+    <p>"It was just the air," said Dr. Michelle Park, an environmental researcher at the University of Michigan who grew up in the Chicago suburbs. "You didn't think of it as a crisis. Occasionally you'd notice a smell, or a haze on a hot day. But mostly it was invisible, and the readings were still poor."</p>
+  </div>
+</div>
+<hr class="article-hr">
+<div class="question-block">
+  <div class="question-text">What was the article mainly about?</div>
+  <div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>What air quality was like in American cities when today's adults were growing up</span></div><div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>The passage of the Clean Air Act in Congress</span></div><div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>International comparisons of air pollution levels</span></div><div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>The health effects of wildfire smoke specifically</span></div>
+</div>
+
+</div>
+<div class="survey-page" id="p3">
+<div class="page-title">Your Views</div>
+<p style="margin-bottom:28px;color:#444;font-size:1em;line-height:1.6;">Now we would like to ask you a few questions about your views on climate change and sustainability.</p>
+<div class="question-block">
+  <div class="question-text">Please indicate how much you agree with each statement.</div>
+  <div class="matrix-wrap"><table class="matrix-table">
+    <thead><tr><th></th><th>Strongly<br>disagree</th><th>Disagree</th><th>Somewhat<br>disagree</th><th>Neither agree<br>nor disagree</th><th>Somewhat<br>agree</th><th>Agree</th><th>Strongly<br>agree</th></tr></thead>
+    <tbody><tr><td>There are simple things I can do that reduce the negative consequences of climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>I can change my daily routines to combat climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>My individual actions will contribute to a solution of climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+</tbody>
+  </table></div>
+</div>
+
+<div class="question-block">
+  <div class="question-text">Please indicate how much you agree with each statement.</div>
+  <div class="matrix-wrap"><table class="matrix-table">
+    <thead><tr><th></th><th>1<br>Strongly<br>disagree</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7<br>Strongly<br>agree</th></tr></thead>
+    <tbody><tr><td>Working together, humans have the ability to reduce climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>Humans are willing to reduce climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>Humans will be successful in reducing climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+</tbody>
+  </table></div>
+</div>
+
+</div>
+<div class="survey-page" id="p4">
+<div class="page-title">Your Views (continued)</div>
+<div class="question-block">
+  <div class="question-text">To what extent do you agree or disagree with the following statements? <span class='approx'>(approximate items)</span></div>
+  <div class="matrix-wrap"><table class="matrix-table">
+    <thead><tr><th></th><th>Strongly<br>agree</th><th>Agree</th><th>Neither agree<br>nor disagree</th><th>Disagree</th><th>Strongly<br>disagree</th></tr></thead>
+    <tbody><tr><td>Climate change is an unstoppable process; there is nothing we can do about it.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>It is already too late to do anything meaningful about climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>The effects of climate change are so far in the future that we need not worry about them now.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+</tbody>
+  </table></div>
+</div>
+
+<div class="question-block">
+  <div class="question-text">Please indicate how much you agree with each statement.</div>
+  <div class="matrix-wrap"><table class="matrix-table">
+    <thead><tr><th></th><th>Strongly<br>disagree</th><th>Disagree</th><th>Somewhat<br>disagree</th><th>Neither agree<br>nor disagree</th><th>Somewhat<br>agree</th><th>Agree</th><th>Strongly<br>agree</th></tr></thead>
+    <tbody><tr><td>I would give part of my income if I were certain that the money would be used to prevent environmental pollution.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+</tbody>
+  </table></div>
+</div>
+
+</div>
+<div class="survey-page" id="p5">
+<div class="page-title">Your Views (continued)</div>
+<div class="question-block">
+  <div class="question-text">How worried are you about climate change? <span class="approx">(approximate wording)</span></div>
+  <div class="likert-row">
+    <div class="l-opt"><span class="c"></span><span class="lb">Not at all<br>worried</span></div>
+    <div class="l-opt"><span class="c"></span><span class="lb">A little<br>worried</span></div>
+    <div class="l-opt"><span class="c"></span><span class="lb">Moderately<br>worried</span></div>
+    <div class="l-opt"><span class="c"></span><span class="lb">Very<br>worried</span></div>
+    <div class="l-opt"><span class="c"></span><span class="lb">Extremely<br>worried</span></div>
+  </div>
+</div>
+<div class="question-block">
+  <div class="question-text">To what extent do you feel hopeful about humanity's ability to address climate change? <span class="approx">(approximate wording)</span></div>
+  <div class="likert-row">
+    <div class="l-opt"><span class="c"></span><span class="lb">Not at all<br>hopeful</span></div>
+    <div class="l-opt"><span class="c"></span><span class="lb">A little<br>hopeful</span></div>
+    <div class="l-opt"><span class="c"></span><span class="lb">Moderately<br>hopeful</span></div>
+    <div class="l-opt"><span class="c"></span><span class="lb">Very<br>hopeful</span></div>
+    <div class="l-opt"><span class="c"></span><span class="lb">Extremely<br>hopeful</span></div>
+  </div>
+</div>
+
+<div class="question-block">
+  <div class="question-text">To what extent would you be willing to adopt the following behaviors?</div>
+  <div class="matrix-wrap"><table class="matrix-table">
+    <thead><tr><th></th><th>Not at all</th><th>A little</th><th>Moderately</th><th>A lot</th><th>A great deal</th></tr></thead>
+    <tbody><tr><td>Have a fuel-efficient or electric vehicle</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>Limit flying</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>Limit beef or meat consumption</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>Limit driving</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>Limit heating or cooling your home</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+</tbody>
+  </table></div>
+</div>
+
+</div>
+<div class="survey-page" id="p6">
+<div class="page-title">Climate Policy</div>
+<div class="question-block">
+  <div class="question-text">For each of the following policies, please indicate whether you are in favour or against.</div>
+  <div class="matrix-wrap"><table class="matrix-table">
+    <thead><tr><th></th><th>1<br>Completely<br>against</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7<br>Completely<br>in favour</th></tr></thead>
+    <tbody><tr><td>Using public money to subsidise renewable energy such as wind and solar power</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>A total ban on the sale of any new cars that run on gasoline or diesel, within a few years</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>Increasing taxes on fossil fuels, such as oil, gas and coal</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+</tbody>
+  </table></div>
+</div>
+
+<div class="question-block">
+  <div class="question-text">How serious do you perceive climate change is at this moment?</div>
+  <div class="num-scale-wrap">
+    <div class="num-scale">
+      <div class="ns-end">1<br>Not at all<br>serious</div>
+      <div class="ns-opts"><div class='ns-opt'><span class='c'></span><span class='n'>1</span></div><div class='ns-opt'><span class='c'></span><span class='n'>2</span></div><div class='ns-opt'><span class='c'></span><span class='n'>3</span></div><div class='ns-opt'><span class='c'></span><span class='n'>4</span></div><div class='ns-opt'><span class='c'></span><span class='n'>5</span></div><div class='ns-opt'><span class='c'></span><span class='n'>6</span></div><div class='ns-opt'><span class='c'></span><span class='n'>7</span></div><div class='ns-opt'><span class='c'></span><span class='n'>8</span></div><div class='ns-opt'><span class='c'></span><span class='n'>9</span></div><div class='ns-opt'><span class='c'></span><span class='n'>10</span></div></div>
+      <div class="ns-end right">10<br>Extremely<br>serious</div>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class="survey-page" id="p7">
+<div class="page-title">One More Question</div>
+<div class="question-block">
+  <div class="question-text">Please indicate your agreement with the statement below</div>
+  <table class="matrix-table">
+    <thead><tr><th></th><th>Strongly<br>disagree</th><th>Somewhat<br>disagree</th><th>Somewhat<br>agree</th><th>Strongly<br>agree</th></tr></thead>
+    <tbody><tr><td>I swim across the Atlantic ocean to get to work everyday</td>
+      <td><span class="m-circle"></span></td><td><span class="m-circle"></span></td>
+      <td><span class="m-circle"></span></td><td><span class="m-circle"></span></td>
+    </tr></tbody>
+  </table>
+</div>
+
+</div>
+<div class="survey-page" id="p8">
+<div class="page-title">Second Article (Randomized)</div>
+<div class="randomizer-box">
+  <strong>Note for reviewers:</strong> Participants are randomly assigned to one of two article versions (50/50). Use the tabs below to preview both versions.
+</div>
+<div class="tab-bar">
+  <button class="tab-btn active" data-set="air2" data-tab="air2-good">Version A: Air Good (positive framing)</button>
+  <button class="tab-btn" data-set="air2" data-tab="air2-bad">Version B: Air Bad (negative framing)</button>
+</div>
+<div class="tab-pane active" id="air2-good" data-set="air2">
+<div class="article-intro">You previously read a news article about pollution levels when you were growing up. Now you will read about current air quality in America.</div>
+<div class="news-article">
+  <div class="masthead">The Public Record</div>
+  <div class="section-tag">Health &amp; Environment</div>
+  <h1 class="headline">American Air Today</h1>
+  <div class="byline">By Sarah Chen &middot; Published May 19, 2025 &middot; 2 min read</div>
+  <div class="article-body">
+    <p>The picture has changed considerably since the decades when today's adults were growing up. The cheap coal that powered industry has been gradually displaced by cleaner alternatives. Cars and trucks went through successive generations of cleaner engines, older vehicles came off the roads, and the buses that ran on the dirtiest fuel were replaced.</p>
+    <p>When researchers measure pollution at the same monitoring stations that recorded the worst years, the readings have dropped sharply. Levels of fine particulate pollution have fallen by more than forty percent compared with earlier decades. Levels of the smog-forming chemicals that used to discolor summer skies have dropped by similar amounts.</p>
+    <p>"I think people forget how bad it actually was," said Dr. Elena Hartmann, an epidemiologist who has studied air pollution since the early 1990s. "The improvements have been larger than most people realize."</p>
+    <p>Public health departments now treat these changes as among the most significant environmental successes of recent decades.</p>
+  </div>
+</div>
+<hr class="article-hr">
+<div class="question-block">
+  <div class="question-text">What was the article mainly about?</div>
+  <div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>How American air quality has significantly improved compared to earlier decades</span></div><div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>International comparisons of air pollution levels</span></div><div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>Changes in regulations governing vehicle emissions</span></div><div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>The health benefits of switching to renewable energy</span></div>
+</div>
+
+</div>
+<div class="tab-pane" id="air2-bad" data-set="air2">
+<div class="article-intro">You previously read a news article about pollution levels when you were growing up. Now you will read about current air quality in America.</div>
+<div class="news-article">
+  <div class="masthead">The Public Record</div>
+  <div class="section-tag">Health &amp; Environment</div>
+  <h1 class="headline">American Air Today</h1>
+  <div class="byline">By Sarah Chen &middot; Published May 19, 2025 &middot; 2 min read</div>
+  <div class="article-body">
+    <p>The picture has not changed much since the decades when today's adults were growing up. Coal is still being burned, diesel trucks still idle along freight corridors, and the same factories operating in earlier decades are largely still operating. On top of that, wildfire smoke now drifts across large parts of the country every summer, adding a source of pollution that barely existed a generation ago.</p>
+    <p>When researchers measure pollution at the same monitoring stations that recorded the worst years, the readings have barely moved. Levels of fine particulate pollution have dropped by only a few percent compared with earlier decades. Levels of smog-forming chemicals have changed by similar amounts.</p>
+    <p>"What strikes me is how little has actually moved," said Dr. Marcus Olsen, a public health researcher who has tracked air quality for more than twenty years. "We talk about pollution as a problem of the past. The numbers tell a different story."</p>
+    <p>Public health departments now treat these numbers as among the most stubborn failures of recent decades.</p>
+  </div>
+</div>
+<hr class="article-hr">
+<div class="question-block">
+  <div class="question-text">What was the article mainly about?</div>
+  <div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>How American air quality remains nearly as poor as it was in earlier decades</span></div><div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>International comparisons of air pollution levels</span></div><div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>Changes in regulations governing vehicle emissions</span></div><div class='radio-option'><span class='radio-circle'></span><span class='radio-label'>The economic costs of air pollution</span></div>
+</div>
+
+</div>
+</div>
+<div class="survey-page" id="p9">
+<div class="page-title">Questions About the Article You Just Read</div>
+<div class="air-dvs-intro">We would now like to ask you a few of the same questions again, based on the article you just read.</div>
+<div class="question-block">
+  <div class="question-text">Please indicate how much you agree with each statement.</div>
+  <div class="matrix-wrap"><table class="matrix-table">
+    <thead><tr><th></th><th>Strongly<br>disagree</th><th>Disagree</th><th>Somewhat<br>disagree</th><th>Neither agree<br>nor disagree</th><th>Somewhat<br>agree</th><th>Agree</th><th>Strongly<br>agree</th></tr></thead>
+    <tbody><tr><td>I would give part of my income if I were certain that the money would be used to prevent environmental pollution.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+</tbody>
+  </table></div>
+</div>
+
+<div class="question-block">
+  <div class="question-text">Please indicate how much you agree with each statement.</div>
+  <div class="matrix-wrap"><table class="matrix-table">
+    <thead><tr><th></th><th>Strongly<br>disagree</th><th>Disagree</th><th>Somewhat<br>disagree</th><th>Neither agree<br>nor disagree</th><th>Somewhat<br>agree</th><th>Agree</th><th>Strongly<br>agree</th></tr></thead>
+    <tbody><tr><td>There are simple things I can do that reduce the negative consequences of climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>I can change my daily routines to combat climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>My individual actions will contribute to a solution of climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+</tbody>
+  </table></div>
+</div>
+
+<div class="question-block">
+  <div class="question-text">Please indicate how much you agree with each statement.</div>
+  <div class="matrix-wrap"><table class="matrix-table">
+    <thead><tr><th></th><th>1<br>Strongly<br>disagree</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7<br>Strongly<br>agree</th></tr></thead>
+    <tbody><tr><td>Working together, humans have the ability to reduce climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>Humans are willing to reduce climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+<tr><td>Humans will be successful in reducing climate change.</td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td><td><span class='m-circle'></span></td></tr>
+</tbody>
+  </table></div>
+</div>
+
+</div>
+<div class="survey-page" id="p10">
+<div class="page-title">Debrief</div>
+<div class="debrief-text">
+  <p>Thank you for completing this survey.</p>
+  <p>This study examines how different framings of climate change in the media influence people's attitudes, behavioural intentions, and policy preferences.</p>
+  <p><strong>The article you read was one of several constructed narratives that participants were randomly assigned to.</strong> The articles were written for the purposes of this research. The factual claims within each article are grounded in published scientific literature, but the framing and emphasis were deliberately varied across conditions.</p>
+  <h3>Withdrawing your data</h3>
+  <p>You may withdraw your responses within 30 days by emailing filip.olsson@eui.eu with your Prolific ID. After 30 days the dataset is fully anonymised and individual responses can no longer be located.</p>
+  <div class="contact-box">
+    <p><strong>Contact</strong></p>
+    <p>Study questions: filip.olsson@eui.eu</p>
+    <p>Ethics questions: ethics@eui.eu</p>
+    <p>Data protection: data_protection_officer@eui.eu</p>
+    <p>This research is funded by the Magnus Bergvall Foundation.</p>
+  </div>
+</div>
+</div>
+
+<div class="nav-buttons">
+  <button class="btn btn-secondary" id="prev-btn" style="visibility:hidden">&#8249; Back</button>
+  <button class="btn btn-primary" id="next-btn">Next &#8250;</button>
+</div>
+<script>
+var cur = 1;
+var total = document.querySelectorAll('.survey-page').length;
+function show(n) {
+  document.querySelectorAll('.survey-page').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('p' + n).classList.add('active');
+  document.getElementById('progress').style.width = (n/total*100) + '%';
+  document.getElementById('counter').textContent = 'Page ' + n + ' of ' + total;
+  document.getElementById('prev-btn').style.visibility = n === 1 ? 'hidden' : 'visible';
+  document.getElementById('next-btn').textContent = n === total ? 'Done' : 'Next >';
+  window.scrollTo(0, 0);
+}
+document.getElementById('next-btn').addEventListener('click', function(){ if(cur < total){ cur++; show(cur); } });
+document.getElementById('prev-btn').addEventListener('click', function(){ if(cur > 1){ cur--; show(cur); } });
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var set = btn.getAttribute('data-set');
+    document.querySelectorAll('[data-set="' + set + '"].tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('[data-set="' + set + '"].tab-pane').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById(btn.getAttribute('data-tab')).classList.add('active');
+  });
+});
+show(1);
+</script>
+</body>
+</html>
